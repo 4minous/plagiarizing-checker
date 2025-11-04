@@ -5,8 +5,14 @@ export interface Similarity {
   explanation: string;
 }
 
+export interface WebSource {
+  uri: string;
+  title: string;
+}
+
 export interface PlagiarismResult {
   overallSimilarityPercentage: number;
   summary: string;
   similarities: Similarity[];
+  webSources?: WebSource[];
 }

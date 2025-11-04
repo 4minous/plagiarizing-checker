@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { PlagiarismResult, Similarity } from '../types';
+import { PlagiarismResult, Similarity, WebSource } from '../types';
+import { GlobeIcon } from './icons';
 
 interface ResultDisplayProps {
   result: PlagiarismResult;
@@ -70,6 +71,35 @@ const SimilarityCard: React.FC<{ similarity: Similarity, index: number }> = ({ s
     </div>
 );
 
+const WebSourcesDisplay: React.FC<{ sources: WebSource[] }> = ({ sources }) => (
+    <div>
+        <h3 className="text-xl md:text-2xl font-bold text-white mb-6 flex items-center gap-3">
+            <GlobeIcon className="w-6 h-6 text-blue-400" />
+            Potential Web Sources Found
+        </h3>
+        <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 md:p-6">
+            <ul className="space-y-4">
+                {sources.map((source, index) => (
+                    <li key={index} className="flex items-start gap-3">
+                        <span className="text-blue-400 font-bold pt-1">{index + 1}.</span>
+                        <div>
+                            <a 
+                                href={source.uri} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className="text-blue-300 hover:text-blue-200 hover:underline underline-offset-2 transition-colors break-all"
+                            >
+                                {source.title || source.uri}
+                            </a>
+                            <p className="text-xs text-gray-500 break-all">{source.uri}</p>
+                        </div>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    </div>
+);
+
 
 const ResultDisplay: React.FC<ResultDisplayProps> = ({ result }) => {
   return (
@@ -83,6 +113,10 @@ const ResultDisplay: React.FC<ResultDisplayProps> = ({ result }) => {
           </div>
       </div>
       
+      {result.webSources && result.webSources.length > 0 && (
+          <WebSourcesDisplay sources={result.webSources} />
+      )}
+
       <div>
         <h3 className="text-xl md:text-2xl font-bold text-white mb-6">Detected Similarities</h3>
         {result.similarities.length > 0 ? (

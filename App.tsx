@@ -1,10 +1,11 @@
+
 import React, { useState, useCallback } from 'react';
 import TextInput from './components/TextInput';
 import ResultDisplay from './components/ResultDisplay';
 import Loader from './components/Loader';
 import { checkPlagiarism } from './services/geminiService';
 import { PlagiarismResult } from './types';
-import { SearchIcon } from './components/icons';
+import { SearchIcon, GlobeIcon } from './components/icons';
 
 const App: React.FC = () => {
   const [sourceText, setSourceText] = useState<string>('');
@@ -12,10 +13,12 @@ const App: React.FC = () => {
   const [result, setResult] = useState<PlagiarismResult | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [useWebSearch, setUseWebSearch] = useState<boolean>(false);
 
   const handleCheckPlagiarism = useCallback(async () => {
-    if (!sourceText.trim() || !textToCheck.trim()) {
-      setError('Please provide both a source text and a text to check.');
+    const isReady = useWebSearch ? textToCheck.trim() : (sourceText.trim() && textToCheck.trim());
+    if (!isReady) {
+      setError(useWebSearch ? 'Please provide the text to check against the web.' : 'Please provide both a source text and a text to check.');
       return;
     }
 
@@ -24,7 +27,7 @@ const App: React.FC = () => {
     setResult(null);
 
     try {
-      const data = await checkPlagiarism(sourceText, textToCheck);
+      const data = await checkPlagiarism(sourceText, textToCheck, useWebSearch);
       setResult(data);
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -35,7 +38,7 @@ const App: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [sourceText, textToCheck]);
+  }, [sourceText, textToCheck, useWebSearch]);
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-200 font-sans p-4 sm:p-6 lg:p-8">
@@ -56,7 +59,7 @@ const App: React.FC = () => {
               title="Source Text"
               value={sourceText}
               onChange={(e) => setSourceText(e.target.value)}
-              placeholder="Paste the original text here..."
+              placeholder={useWebSearch ? "Source text is optional when searching the web..." : "Paste the original text here..."}
               disabled={isLoading}
             />
           </div>
@@ -72,24 +75,42 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex justify-center my-6">
-          <button
-            onClick={handleCheckPlagiarism}
-            disabled={isLoading || !sourceText || !textToCheck}
-            className="flex items-center justify-center gap-2 px-8 py-3 text-lg font-semibold text-white bg-blue-600 rounded-lg shadow-lg hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-not-allowed transform hover:scale-105 transition-all duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-blue-800"
-          >
-            {isLoading ? (
-              <>
-                <Loader />
-                <span>Analyzing...</span>
-              </>
-            ) : (
-              <>
-                <SearchIcon className="w-6 h-6" />
-                <span>Check for Plagiarism</span>
-              </>
-            )}
-          </button>
+        <div className="flex flex-col items-center gap-4 my-6">
+            <label htmlFor="web-search-toggle" className="flex items-center cursor-pointer select-none">
+                <div className="relative">
+                    <input 
+                        type="checkbox" 
+                        id="web-search-toggle" 
+                        className="sr-only" 
+                        checked={useWebSearch}
+                        onChange={() => setUseWebSearch(!useWebSearch)}
+                        disabled={isLoading}
+                    />
+                    <div className={`block w-14 h-8 rounded-full transition-colors ${useWebSearch ? 'bg-blue-600' : 'bg-gray-600'}`}></div>
+                    <div className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform ${useWebSearch ? 'transform translate-x-6' : ''}`}></div>
+                </div>
+                <div className="ml-3 text-gray-300 font-medium flex items-center gap-2">
+                    <GlobeIcon className="w-5 h-5" />
+                    Check Against the Web
+                </div>
+            </label>
+            <button
+                onClick={handleCheckPlagiarism}
+                disabled={isLoading || !textToCheck.trim() || (!useWebSearch && !sourceText.trim())}
+                className="flex items-center justify-center gap-2 px-8 py-3 text-lg font-semibold text-white bg-blue-600 rounded-lg shadow-lg hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-not-allowed transform hover:scale-105 transition-all duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-blue-800"
+            >
+                {isLoading ? (
+                <>
+                    <Loader />
+                    <span>Analyzing...</span>
+                </>
+                ) : (
+                <>
+                    <SearchIcon className="w-6 h-6" />
+                    <span>Check for Plagiarism</span>
+                </>
+                )}
+            </button>
         </div>
 
         {error && (
