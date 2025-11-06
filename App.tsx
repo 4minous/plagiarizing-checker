@@ -45,10 +45,10 @@ const App: React.FC = () => {
       <main className="container mx-auto max-w-7xl">
         <header className="text-center mb-8 md:mb-12">
           <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-teal-300">
-            Aminous plagiarizing checker
+            Plagiarizing Checker
           </h1>
           <p className="mt-4 text-lg text-gray-400 max-w-3xl mx-auto">
-            created by Aminu Abdullahi
+            Developed by Aminu Abdullahi (Aminous)
           </p>
         </header>
 

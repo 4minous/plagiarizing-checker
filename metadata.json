@@ -1,5 +1,5 @@
 {
-  "name": "Aminous plagiarizing checker",
-  "description": "A powerful tool created by Aminu Abdullahi that leverages the Gemini API to detect similarities between two pieces of text, helping you identify potential plagiarism with ease.",
+  "name": "Plagiarizing Checker",
+  "description": "A powerful tool created by Aminu Abdullahi (Aminous) that leverages the Gemini API to detect similarities between two pieces of text, helping you identify potential plagiarism with ease.",
   "requestFramePermissions": []
 }
